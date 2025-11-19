@@ -1,13 +1,15 @@
 # ============================================
-# Particle-track statistics (PTV) â€” FULL SCRIPT (line-by-line commented)
+# Particle-track statistics (PTV) — FULL SCRIPT
 # ============================================
 # Summary:
-# - Loads PTV tracks (.set) from multiple case folders
-# - Computes velocities (central difference) and accelerations (central difference on velocity)
-# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, ay, |a|, plus per-track RMS(V)
-# - Exports figures (PNG + SVG) and per-case track statistics to Excel
-# - (Per your request) Hydrodynamic dispersion (MSD) code has been **removed**
+# - Loads 3D PTV tracks for multiple cases (folders).
+# - Computes velocities and accelerations from particle positions.
+# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, |a| and ay.
+# - Computes per-track RMS(Vx, Vy, Vz, |V|) and plots their PDFs.
+# - Creates |V| boxplots across cases (e.g. varying solid VOF).
+# - Saves all figures (PNG+SVG) and per-case statistics to Excel/CSV.
 # ============================================
+
 
 # -------------------------
 # Imports and configuration

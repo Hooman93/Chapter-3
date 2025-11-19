@@ -1,14 +1,16 @@
 # ============================================
-# Particle-track statistics (PTV) â€” FULL SCRIPT
+# Particle-track statistics (PTV) — FULL SCRIPT
 # ============================================
-# What this script does (high level):
-# - Loads particle tracks for multiple cases (folders)                                    #
-# - Computes velocities (from positions) and accelerations (from velocities)             #
-# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, |a|, and a_y                    #
-# - Computes per-track RMS(Vx, Vy, Vz, |V|) and plots their PDFs                         #
-# - Computes hydrodynamic dispersion via MSD(Ï„) for Y and X+Z, plots curves, fits D      #
-# - Saves plots (PNG+SVG), dispersion curve CSVs, optional PDF CSVs, and stats to Excel  #
+# Summary:
+# - Loads 3D PTV tracks for multiple cases (folders).
+# - Computes velocities and accelerations from particle positions.
+# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, |a| and ay.
+# - Computes per-track RMS(Vx, Vy, Vz, |V|) and plots their PDFs.
+# - Creates |V| boxplots across cases (e.g. varying gas flow rate).
+# - Saves all figures (PNG+SVG) and per-case statistics to Excel/CSV.
 # ============================================
+
+
 
 # -------------------------
 # Imports and configuration
@@ -25,11 +27,19 @@ import lvpyio as lv                         # PTV track reader
 # -------------------------
 # User inputs (edit below)
 # -------------------------
+# data_paths = [                              # List of dataset folders (each = one case)
+#     r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.05 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.05 lpmin",
+#     r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.25 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.25 lpmin",
+#     r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.5 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.5 lpmin",
+# ]
+
+
 data_paths = [                              # List of dataset folders (each = one case)
-    r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.05 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.05 lpmin",
-    r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.25 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.25 lpmin",
-    r"E:\Three-phase Hydrogels\New track data_1000 images_spatialmedian filtered\New track data_1000 images_spatialmedian filtered\0.5 lpermin\30%\Median filtered_Images_1500-2500_For track analysis_30%_0.5 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\30%\0.05 lpermin\dipersion calculation_30% (images 500-1000)_0.05 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\30%\0.25 lpermin\dipersion calculation_30% (images 500-1000)_0.25 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\30%\0.5 lpermin\dipersion calculation_30% (images 500-1000)_0.5 lpmin",
 ]
+
 output_root = r"C:\python files\Hydrogel_Three-phase\Figures\New results\velocity distribution analysis_varying gas flow rate\30%"  # Output folder
 os.makedirs(output_root, exist_ok=True)     # Create output folder if it does not exist
 

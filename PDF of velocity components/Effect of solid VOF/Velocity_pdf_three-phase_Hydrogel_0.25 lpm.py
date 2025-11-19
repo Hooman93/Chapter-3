@@ -1,14 +1,15 @@
 # ============================================
-# Particle-track statistics (PTV) â€” FULL SCRIPT
+# Particle-track statistics (PTV) — FULL SCRIPT
 # ============================================
-# What this script does (high level):
-# - Loads particle tracks for multiple cases (folders)                                    #
-# - Computes velocities (from positions) and accelerations (from velocities)             #
-# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, |a|, and a_y                    #
-# - Computes per-track RMS(Vx, Vy, Vz, |V|) and plots their PDFs                         #
-# - Computes hydrodynamic dispersion via MSD(Ï„) for Y and X+Z, plots curves, fits D      #
-# - Saves plots (PNG+SVG), dispersion curve CSVs, optional PDF CSVs, and stats to Excel  #
+# Summary:
+# - Loads 3D PTV tracks for multiple cases (folders).
+# - Computes velocities and accelerations from particle positions.
+# - Builds PDFs (linear + semi-log) for Vx, Vy, Vz, |V|, |a| and ay.
+# - Computes per-track RMS(Vx, Vy, Vz, |V|) and plots their PDFs.
+# - Creates |V| boxplots across cases (e.g. varying solid VOF).
+# - Saves all figures (PNG+SVG) and per-case statistics to Excel/CSV.
 # ============================================
+
 
 # -------------------------
 # Imports and configuration

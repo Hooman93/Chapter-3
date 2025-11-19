@@ -1,26 +1,48 @@
-
-
 # =====================================================================
-# HYDRODYNAMIC DISPERSION FROM STB TRACKS — SVF SWEEP (MINIMAL CHANGES)
+# HYDRODYNAMIC DISPERSION FROM STB TRACKS — SVF SWEEP
 # =====================================================================
-# Purpose:
-#   - Read DaVis 3D particle tracks (x,y,z) for several solid VOF (SVF) cases
-#   - Compute ensemble MSD (axial y; radial x+z) and fluctuation-corrected MSD
-#   - Fit dispersion D from linear tail over the last 'fit_window_duration' sec
-#   - Save per-case summary (Excel) and figures (SVG+PNG)
+# Purpose / summary:
+#   Post-process DaVis/STB 3D particle tracks (x, y, z) for several
+#   solid volume fractions (SVF) at a fixed gas flow rate (0.25 L/min)
+#   to quantify axial and radial hydrodynamic dispersion.
 #
-# Key change from baseline:
-#   - The comparison axis is now SOLID VOF (%) at a fixed gas rate (0.05 L/min).
-#     Legends, plot titles, and Excel columns reflect SVF instead of gas flow.
+#   For each SVF case the script:
+#     - Loads all 3D tracks from the specified DaVis folder.
+#     - Builds ensemble mean-squared displacement (MSD) curves:
+#         • Axial MSD:      ⟨Δy²⟩
+#         • Radial MSD:     ⟨Δx² + Δz²⟩
+#       both in:
+#         • "Normal" form (including drift),
+#         • "Fluctuation-corrected" form (mean-free MSD with track
+#           averaged velocity subtracted).
+#     - Converts MSD from px² to mm², then to m² for plotting.
+#     - Uses a sliding log–log window (Δτ ≈ 0.2 s) to identify
+#       segments where the MSD scales diffusively (α ≈ 1) and fits
+#       a straight line over the best diffusive span.
+#     - Converts the fitted slope to effective dispersion coefficients
+#       in axial and radial directions:
+#         D = (1/2) · d(MSD)/dτ  [m²/s],
+#       for both normal and fluctuation-corrected MSD.
+#     - Accumulates basic track-length statistics (Tukey box/whisker).
 #
-# Outputs:
-#   - Axial/Radial MSD (normal & fluctuation-corrected), sci y-axis
-#   - Dispersion vs SVF (normal) — dashed lines (axial & radial)
-#   - Dispersion vs SVF (fluctuation-corrected) — dashed lines (axial & radial)
-#   - MSD statistics (increments per lag): semi-log-Y
-#   - Excel summary + compact "Dispersion_vs_SVF.xlsx"
+#   After looping over all SVF cases, the script:
+#     - Collects MSD curves, selected diffusive spans, and counts per lag.
+#     - Exports a full per-case summary (tracks, lengths, D-values, etc.)
+#       to "PTV_dispersion_summary.xlsx".
+#     - Exports a compact "Dispersion_vs_SVF.xlsx" with only D vs SVF.
+#     - Generates publication-ready figures (SVG + PNG) suitable for
+#       A4 two-column layout:
+#         • Axial and radial MSD vs τ (normal and mean-free),
+#           with the selected diffusive segment overlaid as a dashed line.
+#         • Dispersion coefficient vs SVF (normal MSD and mean-free MSD).
+#         • Increments-per-lag statistics (semi-log-y).
 #
-# Author: Hooman Eslami  |  Last edit: 2025-10-27
+# Key difference vs gas-rate sweeps:
+#   - The comparison axis is now SOLID VOF (%) at a fixed gas rate
+#     (0.25 L/min). Legends, plot titles, and Excel columns use SVF
+#     as the main independent variable.
+#
+# Last edit: 2025-10-27
 # =====================================================================
 
 # ----------------------------- IMPORTS --------------------------------
@@ -45,20 +67,19 @@ mm2_per_px2 = mm_per_px**2      # [mm^2/px^2]
 MM2_TO_M2 = 1e-6                # [m^2/mm^2] conversion
 
 # --- Fixed gas rate for this comparison (informational) ---
-gas_rate_Lmin = 0.25            # [L/min] same for all SVF cases
+gas_rate_Lmin = 0.5            # [L/min] same for all SVF cases
 
 # --- Dataset folders: SVF sweep at 0.05 L/min ---
 data_paths = [
-    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\0%\0.25 lpermin\dipersion calculation_0% (images 500-1000)_0.25 lpmin",
-    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\10%\0.25 lpermin\dipersion calculation_10% (images 500-1000)_0.25 lpmin",
-    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\30%\0.25 lpermin\dipersion calculation_30% (images 500-1000)_0.25 lpmin",
-    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\50%\0.25 lpermin\dipersion calculation_50% (images 500-1000)_0.25 lpmin",
-
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\0%\0.5 lpermin\dipersion calculation_0% (images 500-1000)_0.5 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\10%\0.5 lpermin\dipersion calculation_10% (images 500-1000)_0.5 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\30%\0.5 lpermin\dipersion calculation_30% (images 500-1000)_0.5 lpmin",
+    r"E:\Three-phase Hydrogels\track data_dispersion\Three-phase\50%\0.5 lpermin\dipersion calculation_50% (images 500-1000)_0.5 lpmin",
 ]
 svf_levels_pct = [0, 10, 30, 50]           # [%] legend/x-axis for SVF
 
 # --- Output directory (specific to SVF sweep and gas rate) ---
-output_dir = r"C:\python files\Hydrogel_Three-phase\Figures\New results\Hydrodynamic dispersions\Effect of solid VOF\0.25 Lpmin"
+output_dir = r"C:\python files\Hydrogel_Three-phase\Figures\New results\Hydrodynamic dispersions\Effect of solid VOF\0.5 Lpmin"
 Path(output_dir).mkdir(parents=True, exist_ok=True)  # ensure folder exists
 
 # --- Fast testing (limit number of tracks per dataset); set to None for full run ---
