@@ -1,21 +1,3 @@
-# =====================================================================
-# HYDRODYNAMIC DISPERSION FROM STB TRACKS — BASELINE CORE + SI PLOTS
-# =====================================================================
-# Core kept the same as your baseline:
-#   - Reads tracks from DaVis .set
-#   - Ensemble (increment-pooled) MSD in pixel^2 -> mm^2
-#   - Linear tail fit over last 'fit_window_duration' seconds:
-#       MSD ≈ 2 D t + c  =>  D = slope / 2
-#   - D initially in mm^2/s (baseline), converted to m^2/s for outputs
-#
-# Outputs (updated per your request):
-#   - Figures saved as BOTH SVG and PNG for: Axial MSD (m^2), Radial MSD (m^2),
-#     Dispersion vs Gas Flow (m^2/s, sci y, dashed), Counts vs τ
-#   - One Excel summary with per-case stats + D (m^2/s)
-#   - One SEPARATE Excel file containing only dispersion vs gas-flow values
-#
-# Author: Hooman Eslami  |  Last edit: 2025-09-30
-# =====================================================================
 
 # ----------------------------- IMPORTS --------------------------------
 import os                               # filesystem paths
